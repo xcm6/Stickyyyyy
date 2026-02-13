@@ -11,7 +11,8 @@ export async function ensureProfile(user) {
             username: user.email.split('@')[0],
             avatar_url: `https://ui-avatars.com/api/?name=${user.email.split('@')[0]}`,
             total_check_ins: 0,
-            bio: "I'm testing Sticky!"
+            bio: "I'm testing Sticky!",
+            mood: '⚙️'  // 默认mood，表示"Set Your Mood"
         }]);
     }
 }
@@ -27,11 +28,16 @@ export async function performCheckIn(userId, photoData) {
     // 测试阶段：允许一天多次签到 (注释掉重复检查)
     // const { data: existing } = ...
 
-    // 1. 写入签到记录
+    // 获取用户当前的mood
+    const { data: profile } = await supabase.from('profiles').select('mood').eq('id', userId).single();
+    const currentMood = profile?.mood || '⚙️';
+
+    // 1. 写入签到记录（包含mood）
     const { error } = await supabase.from('check_ins').insert([{
         user_id: userId,
         check_in_date: today,
-        photo_url: photoData // 注意这里字段名要和数据库一致，如果是 photo_url
+        photo_url: photoData, // 注意这里字段名要和数据库一致，如果是 photo_url
+        mood: currentMood  // 记录签到时的mood
     }]);
 
     if (error) {

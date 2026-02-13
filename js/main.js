@@ -19,10 +19,13 @@ async function init() {
         // 1. 确保用户 Profile 存在
         await ensureProfile(user);
         
-        // 2. ✨ 检查有没有人戳你或留言
+        // 2. 检查是否是新的一天，如果是则重置mood
+        await checkAndResetDailyMood(user.id);
+
+        // 3. ✨ 检查有没有人戳你或留言
         checkNotifications(user.id);
 
-        // 3. 加载游戏和天数
+        // 4. 加载游戏和天数
         loadDashboard(user.id);
     } else {
         // 未登录状态
@@ -254,7 +257,7 @@ async function setupMainMoodPicker() {
     if(!display || !picker) return;
 
     const { data: profile } = await supabase.from('profiles').select('mood').eq('id', user.id).single();
-    display.innerText = profile?.mood || '✨';
+    display.innerText = profile?.mood || '⚙️';
     
     // Hover effect
     display.onmouseenter = () => {
@@ -299,6 +302,19 @@ async function setupMainMoodPicker() {
             picker.style.display = 'none';
         };
     });
+}
+
+// 检查并重置每日mood
+async function checkAndResetDailyMood(userId) {
+    const today = new Date().toISOString().split('T')[0];
+    const lastVisitKey = `last_visit_date_${userId}`;
+    const lastVisitDate = localStorage.getItem(lastVisitKey);
+    
+    // 如果是新的一天，重置mood为默认值⚙️
+    if (lastVisitDate !== today) {
+        await supabase.from('profiles').update({ mood: '⚙️' }).eq('id', userId);
+        localStorage.setItem(lastVisitKey, today);
+    }
 }
 
 init();

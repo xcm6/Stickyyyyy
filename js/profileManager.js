@@ -202,14 +202,14 @@ async function loadUserCalendar(userId) {
 
     // 直接把整个对象数组和当前心情传给 render
     const calendar = new CalendarRender('calendarArea');
-    calendar.render(checks, profile?.mood || '✨');
+    calendar.render(checks, profile?.mood || '⚙️');
 }
 
 function renderProfile(p) {
     document.getElementById('username').innerText = p.username || 'User';
     
     // 渲染 Mood
-    document.getElementById('moodText').innerText = p.mood || '✨'; // 默认闪光
+    document.getElementById('moodText').innerText = p.mood || '⚙️'; // 默认齿轮表示未设置
     
     document.querySelector('.streak-number').innerText = p.total_check_ins || 0;
     let ava = p.avatar_url || `https://ui-avatars.com/api/?name=${p.username}&background=random`;

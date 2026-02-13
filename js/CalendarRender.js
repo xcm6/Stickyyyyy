@@ -12,9 +12,12 @@ export class CalendarRender {
         // currentMood: 用户当前的心情（用于显示今天未签到时的状态）
         
         // 为了方便查找，把数组转成 Map: key=date, value=mood
+        // ⚠️ 过滤掉默认的'⚙️'mood，不在日历上显示
         const recordMap = {};
         checkIns.forEach(item => {
-            recordMap[item.check_in_date] = item.mood;
+            if (item.mood && item.mood !== '⚙️') {
+                recordMap[item.check_in_date] = item.mood;
+            }
         });
 
         const now = new Date();
@@ -62,7 +65,10 @@ export class CalendarRender {
                 
                 // ⚠️ 核心逻辑：如果是今天，显示实时心情（未结算）
                 if (isToday) {
-                    content += `<span class="day-mood">${currentMood}</span>`;
+                    // 今天如果mood是默认的⚙️，不显示在日历上
+                    if (currentMood !== '⚙️') {
+                        content += `<span class="day-mood">${currentMood}</span>`;
+                    }
                 } else {
                     // 过去的日子：显示已结算的 mood
                     const mood = recordMap[currentStr];
@@ -71,8 +77,10 @@ export class CalendarRender {
                     }
                 }
             } else if (isToday) {
-                // 今天但还没签到：显示实时心情（半透明）
-                content += `<span class="day-mood" style="opacity: 0.4;">${currentMood}</span>`;
+                // 今天但还没签到：如果mood不是默认的⚙️，才显示半透明心情
+                if (currentMood !== '⚙️') {
+                    content += `<span class="day-mood" style="opacity: 0.4;">${currentMood}</span>`;
+                }
             }
             
             if (isPast && !isToday) classes += ' past';
