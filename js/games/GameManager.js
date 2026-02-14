@@ -2,6 +2,10 @@ import MathGame from './MathGame.js';
 import SliderGame from './SliderGame.js';
 import PuzzleGame from './PuzzleGame.js';
 import CameraGame from './CameraGame.js';
+import DodgeGame from './DodgeGame.js';
+import TargetGame from './TargetGame.js';
+import ReactionGame from './ReactionGame.js';
+import ConnectGame from './ConnectGame.js';
 
 export default class GameManager {
     constructor(containerId, onComplete) {
@@ -13,7 +17,7 @@ export default class GameManager {
         this.container.innerHTML = ''; // 清空容器
         
         // 1. 定义游戏池
-        const games = [MathGame, SliderGame, PuzzleGame];
+        const games = [MathGame, SliderGame, PuzzleGame, DodgeGame, TargetGame, ReactionGame, ConnectGame];
         
         // 2. 随机选一个
         const RandomGame = games[Math.floor(Math.random() * games.length)];

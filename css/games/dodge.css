@@ -1,0 +1,69 @@
+/* 接住游戏样式 */
+.dodge-container {
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    animation: fadeIn 0.3s ease-in;
+    align-items: center;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+.dodge-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 8px 0;
+    font-size: 14px;
+    width: 480px;
+}
+
+.dodge-arena {
+    position: relative;
+    width: 480px;
+    height: 280px;
+    border: 2px solid #000;
+    border-radius: 0;
+    overflow: hidden;
+    background: #fff;
+    margin: 8px auto;
+    touch-action: none;
+}
+
+.dodge-player {
+    position: absolute;
+    width: 46px;
+    height: 14px;
+    border-radius: 999px;
+    border: 2px solid #000;
+    background: #fff;
+    bottom: 20px;
+    transform: translateX(-50%);
+    box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.3);
+}
+
+.dodge-block {
+    position: absolute;
+    width: 26px;
+    height: 26px;
+    border-radius: 0;
+    border: 2px solid #000;
+    background: #90EE90;
+    transition: background 0.18s ease;
+}
+
+.dodge-hint {
+    font-size: 12px;
+    color: #888;
+    text-align: center;
+    margin-top: 3px;
+    width: 480px;
+}
+
+#dodgeMsg {
+    font-weight: 600;
+    color: #000;
+}

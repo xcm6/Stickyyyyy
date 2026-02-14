@@ -1,6 +1,8 @@
 import { showToast } from '../utils.js';
 
 export default class SliderGame {
+    static title = 'Slide to Check-in';
+    
     constructor(container, onSuccess) {
         this.container = container;
         this.onSuccess = onSuccess;
@@ -12,7 +14,6 @@ export default class SliderGame {
 
         this.container.innerHTML = `
             <div class="slider-container">
-                <h3>Slide to Check-in</h3>
                 <div class="slider-track" id="track">
                     <div class="slider-target" style="left: ${targetPercent}%"></div>
                     <div class="slider-thumb" id="thumb">➜</div>

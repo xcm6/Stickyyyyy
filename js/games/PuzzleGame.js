@@ -1,6 +1,8 @@
 import { showToast } from '../utils.js';
 
 export default class PuzzleGame {
+    static title = 'Match Pairs';
+    
     constructor(container, onSuccess) {
         this.container = container;
         this.onSuccess = onSuccess;
@@ -17,9 +19,8 @@ export default class PuzzleGame {
 
         this.container.innerHTML = `
             <div class="puzzle-container">
-                <h3>Match Pairs</h3>
                 <div class="puzzle-grid" id="grid"></div>
-                <p style="font-size:12px; color:#888;">Find all pairs to unlock</p>
+                <p class="puzzle-hint">Find all pairs to unlock</p>
             </div>
         `;
 

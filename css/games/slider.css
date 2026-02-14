@@ -1,10 +1,10 @@
 /* 滑块验证样式 */
 .slider-container {
-    padding: 15px 10px;
-    min-height: 350px;
+    padding: 10px;
     display: flex;
     flex-direction: column;
     justify-content: center;
+    align-items: center;
     user-select: none; /* 防止拖拽时选中文字 */
     animation: fadeIn 0.3s ease-in;
 }
@@ -16,9 +16,8 @@
 
 .slider-track {
     position: relative;
-    width: 100%;
-    max-width: 400px;
-    margin: 40px auto 20px auto;
+    width: 480px;
+    margin: 20px auto 15px auto;
     height: 16px;
     background: #f0f0f0;
     border-radius: 0;
@@ -67,7 +66,9 @@
     box-shadow: 3px 3px 0 rgba(0,0,0,0.5);
 }
 .slider-hint {
-    font-size: 13px;
+    font-size: 12px;
     color: #888;
-    margin-top: 10px;
+    margin-top: 3px;
+    text-align: center;
+    width: 480px;
 }

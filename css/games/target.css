@@ -1,0 +1,63 @@
+/* 射击目标游戏样式 */
+.target-container {
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    animation: fadeIn 0.3s ease-in;
+    align-items: center;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+.target-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 8px 0;
+    font-size: 14px;
+    width: 480px;
+}
+
+.target-arena {
+    position: relative;
+    width: 480px;
+    height: 280px;
+    border: 2px solid #000;
+    border-radius: 0;
+    overflow: hidden;
+    background: #fff;
+    margin: 8px auto;
+    cursor: crosshair;
+}
+
+.target-dot {
+    position: absolute;
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    border: 3px solid #000;
+    background: #fff;
+    transform: translate(-50%, -50%);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.3);
+}
+
+.target-dot:hover {
+    transform: translate(-50%, -50%) scale(1.1);
+}
+
+.target-dot:active {
+    transform: translate(-50%, -50%) scale(0.95);
+}
+
+.target-hint {
+    font-size: 12px;
+    color: #888;
+    text-align: center;
+    margin-top: 3px;
+    width: 480px;
+}

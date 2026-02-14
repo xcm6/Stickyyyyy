@@ -1,6 +1,8 @@
 import { randInt, showToast } from '../utils.js';
 
 export default class MathGame {
+    static title = 'Solve to Check-in';
+    
     constructor(container, onSuccess) {
         this.container = container;
         this.onSuccess = onSuccess;
@@ -21,7 +23,6 @@ export default class MathGame {
     render() {
         this.container.innerHTML = `
             <div class="math-container">
-                <h3>Solve to Check-in</h3>
                 <div class="math-question">${this.q.str}</div>
                 <input type="number" id="mathInput" class="math-input" placeholder="?" inputmode="numeric" autofocus>
                 <button id="verifyBtn" class="primary-btn" style="width:100%">Verify</button>
