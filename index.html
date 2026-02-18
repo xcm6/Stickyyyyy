@@ -11,31 +11,33 @@
     <link rel="stylesheet" href="css/games/slider.css">
     <link rel="stylesheet" href="css/games/puzzle.css">
     <link rel="stylesheet" href="css/games/camera.css">
-    <link rel="stylesheet" href="css/games/dodge.css">
-    <link rel="stylesheet" href="css/games/target.css">
-    <link rel="stylesheet" href="css/games/reaction.css">
     <link rel="stylesheet" href="css/games/connect.css">
+    <link rel="stylesheet" href="css/games/dodge.css">
+    <link rel="stylesheet" href="css/games/reaction.css">
+    <link rel="stylesheet" href="css/games/target.css">
 </head>
 <body>
     <div class="topbar">
         <a href="index.html" class="logo">Sticky</a>
         <nav class="topnav">
+            <a href="dlc.html">DLC</a>
+            <a href="index.html">Home</a>
             <a href="leaderboard.html">Rank</a>
-            <a href="profile.html">Me</a>
             <a href="gallery.html">Gallery</a>
+            <a href="profile.html">Me</a>
             <a id="authBtn" href="login.html">Login</a>
         </nav>
     </div>
 
     <div class="container">
         <div class="card" style="text-align: center;">
-            <div id="beforeCheckIn" style="height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+            <div id="beforeCheckIn" style="height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding-top: 40px;">
                 <div id="streakDisplay" style="margin-bottom: 20px;">
                     <span id="consecutiveDays" style="font-size: 36px; font-weight: 800; line-height: 1; display:block;">0</span>
                     <div style="color:#888; margin-top: 8px; font-size: 12px; text-transform: uppercase; letter-spacing: 1px;">days streak</div>
                 </div>
                 
-                <div id="gameContainer" style="height: 380px; display: flex; align-items: center; justify-content: center; flex-direction: column; transition: opacity 0.3s ease; position: relative; overflow: hidden;">
+                <div id="gameContainer" style="width: 100%; max-width: 600px; margin: 0 auto; min-height: 350px; display: flex; align-items: center; justify-content: center; flex-direction: column; transition: opacity 0.3s ease; position: relative; overflow: visible;">
                     <p style="color:#aaa;">Loading...</p>
                 </div>
 
@@ -46,15 +48,18 @@
                 <div style="font-size: 90px; font-weight: 900; line-height: 1; color: #111; margin-bottom: 15px;" id="finalStreak">0</div>
                 <div style="font-size: 18px; color: #888; text-transform: uppercase; letter-spacing: 2px;">Days Streak</div>
                 
-                <div style="margin-top: 30px; position: relative; display: inline-block;">
-                    <div id="currentMoodDisplay" style="font-size: 56px; cursor: pointer; user-select: none; transition: transform 0.2s ease;">✨</div>
-                    <div id="mainEmojiPicker" style="display: none; position: absolute; left: 50%; transform: translateX(-50%); top: 70px; background: white; padding: 15px; border: 2px solid #000; box-shadow: 4px 4px 0 rgba(0,0,0,1); z-index: 100; gap: 10px; flex-wrap: wrap; width: 280px;"></div>
+                <div class="mood-selector">
+                    <div id="currentMoodDisplay">✨</div>
                 </div>
                 
                 <div style="margin-top: 15px; font-size: 13px; color: #aaa;">See you tomorrow!</div>
             </div>
         </div>
     </div>
+
+    <!-- Emoji Picker 弹出框（全局层） -->
+    <div id="emojiPickerOverlay" class="emoji-picker-overlay"></div>
+    <div id="mainEmojiPicker" class="emoji-picker"></div>
 
     <!-- 通知按钮（左下角固定） -->
     <div id="notificationBtn" class="notif-btn">
@@ -67,6 +72,7 @@
         <div class="notif-panel-header">
             <h4 style="margin: 0; font-size: 14px; font-weight: 700;">Notifications</h4>
             <div style="display: flex; gap: 10px; align-items: center;">
+                <button id="clearAllNotifBtn" class="clear-notif-btn">Clear All</button>
                 <button id="closeNotifBtn" class="close-notif-btn">✕</button>
             </div>
         </div>

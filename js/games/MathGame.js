@@ -1,8 +1,6 @@
 import { randInt, showToast } from '../utils.js';
 
 export default class MathGame {
-    static title = 'Solve to Check-in';
-    
     constructor(container, onSuccess) {
         this.container = container;
         this.onSuccess = onSuccess;
@@ -23,9 +21,15 @@ export default class MathGame {
     render() {
         this.container.innerHTML = `
             <div class="math-container">
+                <div class="math-header">
+                    <h3>Solve to Check-in</h3>
+                    <div class="math-subtitle">Answer the question below</div>
+                </div>
                 <div class="math-question">${this.q.str}</div>
-                <input type="number" id="mathInput" class="math-input" placeholder="?" inputmode="numeric" autofocus>
-                <button id="verifyBtn" class="primary-btn" style="width:100%">Verify</button>
+                <div class="math-input-wrapper">
+                    <input type="number" id="mathInput" class="math-input" placeholder="?" inputmode="numeric" autofocus>
+                </div>
+                <button id="verifyBtn" class="primary-btn math-verify-btn">Verify Answer</button>
             </div>
         `;
 
@@ -34,12 +38,24 @@ export default class MathGame {
 
         // 绑定点击和回车事件
         const check = () => {
-            if (parseInt(input.value) === this.q.ans) {
-                this.onSuccess();
+            const answer = parseInt(input.value);
+            if (isNaN(answer)) {
+                showToast("Please enter a number", "error");
+                return;
+            }
+            
+            if (answer === this.q.ans) {
+                input.classList.add('correct');
+                btn.disabled = true;
+                setTimeout(() => this.onSuccess(), 500);
             } else {
-                showToast("Wrong answer", "error");
-                input.value = '';
-                input.focus();
+                input.classList.add('shake');
+                showToast("Wrong answer, try again!", "error");
+                setTimeout(() => {
+                    input.classList.remove('shake');
+                    input.value = '';
+                    input.focus();
+                }, 500);
             }
         };
 

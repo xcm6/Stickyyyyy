@@ -8,14 +8,19 @@ export default class CameraGame {
     }
 
     async render() {
-        // 后台打开相机，不显示界面
+        // 显示相机加载界面
         this.container.innerHTML = `
+            <div class="camera-loading">
+                <div class="camera-icon">📸</div>
+                <div class="loading-text">Starting camera...</div>
+            </div>
             <video id="video" style="display:none;" autoplay playsinline muted></video>
             <canvas id="canvas" style="display:none;"></canvas>
             <div id="photoFlash" style="display:none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #fff; z-index: 9999; pointer-events: none;"></div>
         `;
 
         const video = this.container.querySelector('#video');
+        const loadingDiv = this.container.querySelector('.camera-loading');
 
         try {
             this.stream = await navigator.mediaDevices.getUserMedia({ 
@@ -25,15 +30,25 @@ export default class CameraGame {
             
             video.onloadedmetadata = () => {
                 video.play();
-                // 等待相机完全启动后立即拍照
+                // 相机启动后直接拍照，无需显示提示
+                loadingDiv.style.display = 'none';
+                
+                // 等待相机完全启动后直接拍照
                 setTimeout(() => {
                     this.snap();
                 }, 500);
             };
 
         } catch (e) {
+            console.error('Camera error:', e);
             showToast("Camera access required!", "error");
-            this.container.innerHTML = `<p style="color:red; text-align:center;">Camera access denied.</p>`;
+            this.container.innerHTML = `
+                <div class="camera-error">
+                    <div class="error-icon">⚠️</div>
+                    <div class="error-title">Camera Access Denied</div>
+                    <div class="error-message">Please allow camera access to complete check-in</div>
+                </div>
+            `;
         }
     }
 
@@ -89,8 +104,8 @@ export default class CameraGame {
             background-image: url('${dataUrl}');
             background-size: cover;
             background-position: center;
-            border: 3px solid #000;
-            box-shadow: 4px 4px 0 rgba(0,0,0,1);
+            border: 2px solid #000;
+            box-shadow: 2px 2px 0 rgba(0,0,0,0.8);
             z-index: 10000;
             pointer-events: none;
         `;

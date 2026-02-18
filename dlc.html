@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DLC - Sticky</title>
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/layout.css">
+    <style>
+        body { overflow-y: auto; padding-top: 100px; padding-bottom: 40px; height: auto; }
+        .card { margin: 0 auto; min-height: 500px; display: flex; align-items: center; justify-content: center; }
+        .coming-soon { 
+            text-align: center; 
+            color: #888; 
+            font-size: 24px; 
+            font-weight: 700; 
+            text-transform: uppercase; 
+            letter-spacing: 2px; 
+        }
+    </style>
+</head>
+<body>
+    <div class="topbar">
+        <a href="index.html" class="logo">Sticky</a>
+        <nav class="topnav">
+            <a href="dlc.html">DLC</a>
+            <a href="index.html">Home</a>
+            <a href="leaderboard.html">Rank</a>
+            <a href="gallery.html">Gallery</a>
+            <a href="profile.html">Me</a>
+            <a id="authBtn" href="login.html">Login</a>
+        </nav>
+    </div>
+
+    <div class="container">
+        <div class="card">
+            <div class="coming-soon">Coming Soon...</div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { supabase } from './js/supabaseClient.js';
+
+        // 检查登录状态
+        async function checkAuth() {
+            const { data: { user } } = await supabase.auth.getUser();
+            const authBtn = document.getElementById('authBtn');
+            if (user) {
+                authBtn.textContent = 'Logout';
+                authBtn.href = '#';
+                authBtn.onclick = async (e) => {
+                    e.preventDefault();
+                    await supabase.auth.signOut();
+                    window.location.href = 'login.html';
+                };
+            } else {
+                authBtn.textContent = 'Login';
+                authBtn.href = 'login.html';
+            }
+        }
+
+        checkAuth();
+    </script>
+</body>
+</html>

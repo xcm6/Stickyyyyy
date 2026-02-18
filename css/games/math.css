@@ -1,12 +1,14 @@
 /* 数学题样式 */
 .math-container {
     text-align: center;
-    padding: 10px;
+    padding: 20px;
+    min-height: 350px;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     animation: fadeIn 0.3s ease-in;
+    gap: 20px;
 }
 
 @keyframes fadeIn {
@@ -14,31 +16,111 @@
     to { opacity: 1; transform: scale(1); }
 }
 
-.math-question {
-    font-size: 28px;
+.math-header {
+    margin-bottom: 10px;
+}
+
+.math-header h3 {
+    font-size: 20px;
     font-weight: 800;
-    margin: 15px 0;
-    color: var(--primary-black);
-    letter-spacing: 2px;
-    width: 480px;
+    margin: 0 0 8px 0;
+    color: #000;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.math-subtitle {
+    font-size: 12px;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.math-question {
+    font-size: clamp(32px, 6vw, 48px);
+    font-weight: 800;
+    margin: 12px 0;
+    color: #000;
+    letter-spacing: 1.5px;
+    line-height: 1.2;
+    padding: 12px 20px;
+    background: #f5f5f7;
+    border: 2px solid #000;
+    box-shadow: 2px 2px 0 rgba(0,0,0,0.8);
+    min-width: 160px;
+}
+
+.math-input-wrapper {
+    position: relative;
+    width: 100%;
+    max-width: 140px;
 }
 
 .math-input {
     display: block;
-    width: 120px;
-    margin: 0 auto 20px auto;
+    width: 100%;
     padding: 12px;
-    font-size: 24px;
+    font-size: 26px;
+    font-weight: 700;
     text-align: center;
     border: 2px solid #000;
     border-radius: 0;
     background: #fff;
     outline: none;
     transition: all 0.2s ease;
+    appearance: textfield;
+}
+
+.math-input::-webkit-inner-spin-button,
+.math-input::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
 }
 
 .math-input:focus {
     border-color: #000;
-    box-shadow: 2px 2px 0 rgba(0,0,0,0.3);
-    transform: translateY(-1px);
+    box-shadow: 2px 2px 0 rgba(0,0,0,0.8);
+    transform: translateY(-2px);
+}
+
+.math-input.correct {
+    background: #000;
+    color: #fff;
+    border-color: #000;
+}
+
+.math-input.shake {
+    animation: shake 0.5s;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-8px); }
+    20%, 40%, 60%, 80% { transform: translateX(8px); }
+}
+
+.math-verify-btn {
+    width: 100%;
+    max-width: 300px;
+    padding: 14px 24px;
+    font-size: 14px;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .math-container {
+        padding: 15px;
+        gap: 15px;
+    }
+    
+    .math-question {
+        font-size: clamp(28px, 8vw, 40px);
+        padding: 12px 18px;
+        min-width: 140px;
+    }
+    
+    .math-input {
+        font-size: 24px;
+        padding: 12px;
+    }
 }

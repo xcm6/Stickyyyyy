@@ -47,28 +47,29 @@ async function initProfile() {
 function createEmojiPicker(userId) {
     const moods = ['🔥', '💀', '🍀', '💤', '🎉', '💻', '☕', '😭', '😡', '❤️', '🚀', '✨'];
     
+    // 创建遮罩层
+    const overlay = document.createElement('div');
+    overlay.id = 'profileEmojiOverlay';
+    overlay.className = 'emoji-picker-overlay';
+    
+    // 创建picker容器
     const container = document.createElement('div');
     container.id = 'emojiPicker';
-    container.style.cssText = `
-        display: none; 
-        gap: 5px; 
-        flex-wrap: wrap; 
-        background: #fff; 
-        padding: 10px; 
-        border-radius: 0; 
-        box-shadow: 2px 2px 0 rgba(0,0,0,0.5);
-        position: absolute;
-        top: 40px; right: 0; z-index: 1000;
-        width: 160px;
-        border: 1px solid #000;
-    `;
+    container.className = 'emoji-picker';
+    
+    // 创建标题和网格
+    const header = document.createElement('div');
+    header.className = 'emoji-picker-header';
+    header.textContent = 'SET YOUR MOOD';
+    
+    const grid = document.createElement('div');
+    grid.className = 'emoji-picker-grid';
 
     moods.forEach(emoji => {
-        const btn = document.createElement('span');
+        const btn = document.createElement('button');
         btn.innerText = emoji;
-        btn.style.cssText = 'cursor: pointer; font-size: 20px; padding: 4px; border-radius: 0; transition: background 0.1s;';
-        btn.onmouseover = () => btn.style.background = '#f0f0f0';
-        btn.onmouseout = () => btn.style.background = 'transparent';
+        btn.className = 'emoji-picker-option';
+        btn.dataset.mood = emoji;
         
         btn.onclick = async () => {
             showToast("Updating mood...");
@@ -88,7 +89,8 @@ function createEmojiPicker(userId) {
                 .eq('check_in_date', today);
 
             // 关闭选择器
-            container.style.display = 'none';
+            container.classList.remove('show');
+            overlay.classList.remove('show');
             
             // ⚠️ 直接用新的 emoji 刷新日历，不需要重新查询
             const { data: checks } = await supabase
@@ -103,26 +105,48 @@ function createEmojiPicker(userId) {
             
             showToast("Mood updated!");
         };
-        container.appendChild(btn);
+        grid.appendChild(btn);
     });
 
-    return container;
+    container.appendChild(header);
+    container.appendChild(grid);
+
+    return { picker: container, overlay };
 }
 
 function setupEditing(userId) {
     // 1. Mood 编辑：直接点击 emoji 弹出选择器
     const moodBadge = document.getElementById('moodBadgeTop');
-    const picker = createEmojiPicker(userId);
-    moodBadge.appendChild(picker);
+    const { picker, overlay } = createEmojiPicker(userId);
+    document.body.appendChild(overlay);
+    document.body.appendChild(picker);
+
+    const togglePicker = (show) => {
+        if (show) {
+            picker.classList.add('show');
+            overlay.classList.add('show');
+        } else {
+            picker.classList.remove('show');
+            overlay.classList.remove('show');
+        }
+    };
 
     moodBadge.onclick = (e) => {
-        e.stopPropagation(); // 防止冒泡
-        picker.style.display = picker.style.display === 'flex' ? 'none' : 'flex';
+        e.stopPropagation();
+        const isShowing = picker.classList.contains('show');
+        togglePicker(!isShowing);
+    };
+
+    // 点击overlay关闭
+    overlay.onclick = () => {
+        togglePicker(false);
     };
 
     // 点击其他地方关闭选择器
     document.addEventListener('click', (e) => {
-        if (!moodBadge.contains(e.target)) picker.style.display = 'none';
+        if (!picker.contains(e.target) && e.target !== moodBadge && !overlay.contains(e.target)) {
+            togglePicker(false);
+        }
     });
 
     // 2. Name 编辑
@@ -158,7 +182,7 @@ function setupEditing(userId) {
             return;
         }
         
-        showToast('📸 Uploading...', 'info');
+        showToast('Uploading...', 'info');
         const fileExt = file.name.split('.').pop();
         const filePath = `${userId}.${fileExt}`;
         const { error: uploadError } = await supabase.storage.from('avatars').upload(filePath, file, { upsert: true });
@@ -172,7 +196,7 @@ function setupEditing(userId) {
         const { data } = supabase.storage.from('avatars').getPublicUrl(filePath);
         await supabase.from('profiles').update({ avatar_url: data.publicUrl }).eq('id', userId);
         document.getElementById('avatar').src = data.publicUrl + '?t=' + Date.now();
-        showToast('✨ Avatar updated!', 'success');
+        showToast('Avatar updated!', 'success');
     };
 }
 
@@ -180,8 +204,15 @@ function setupEditing(userId) {
 async function loadUserGroups(uid) {
     const el = document.getElementById('userGroupsBadges');
     if(!el) return;
-    const {data} = await supabase.from('group_members').select('groups:group_id(name)').eq('user_id', uid);
-    el.innerHTML = data ? data.map(m=>`<span style="background:#eee;color:#555;font-size:10px;padding:2px 6px;border-radius:0;border:1px solid #ccc;">${m.groups.name}</span>`).join('') : '';
+    const {data} = await supabase.from('group_members').select('groups:group_id(name, total_group_check_ins)').eq('user_id', uid);
+    el.innerHTML = data ? data.map(m=>{
+        const groupName = m.groups.name;
+        const checkIns = m.groups.total_group_check_ins || 0;
+        return `<span style="background:#f5f5f7;color:#000;font-size:10px;padding:4px 8px;border:2px solid #000;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;display:inline-flex;align-items:center;gap:6px;">
+            ${groupName}
+            <span style="background:#000;color:#fff;padding:2px 6px;font-size:9px;border-radius:0;">${checkIns}d</span>
+        </span>`;
+    }).join('') : '';
 }
 
 async function loadUserCalendar(userId) {
@@ -297,7 +328,7 @@ function setupFriendCheckIn(currentUserId, targetUserId, targetUsername) {
     // 检查今天是否已经 check-in 过
     checkTodayCheckIn(currentUserId, targetUserId).then(alreadyChecked => {
         if (alreadyChecked) {
-            btn.innerText = '✅ Stickied Today';
+            btn.innerText = 'Stickied Today';
             btn.disabled = true;
             btn.style.opacity = '0.5';
             btn.style.cursor = 'not-allowed';
@@ -320,12 +351,12 @@ function setupFriendCheckIn(currentUserId, targetUserId, targetUsername) {
             return;
         }
         
-        btn.innerText = '✅ Stickied Today';
+        btn.innerText = 'Stickied Today';
         btn.disabled = true;
         btn.style.opacity = '0.5';
         btn.style.cursor = 'not-allowed';
         
-        showToast('✨ Stickied your friend!', 'success');
+        showToast('Stickied your friend!', 'success');
     };
 }
 

@@ -33,9 +33,11 @@ export default class DodgeGame {
     render() {
         this.container.innerHTML = `
             <div class="dodge-container">
-                <div class="dodge-info">
-                    <div>Caught: <b id="dodgeCaught">0</b> / ${this.CATCH_GOAL}</div>
-                    <div id="dodgeMsg">Catch 10 blocks</div>
+                <div class="dodge-header">
+                    <h3>Catch Blocks</h3>
+                    <div class="dodge-progress">
+                        Caught: <span id="dodgeCaught">0</span>/${this.CATCH_GOAL}
+                    </div>
                 </div>
                 <div class="dodge-arena" id="dodgeArena">
                     <div class="dodge-player" id="dodgePlayer"></div>
@@ -47,7 +49,6 @@ export default class DodgeGame {
         this.arena = this.container.querySelector('#dodgeArena');
         this.playerEl = this.container.querySelector('#dodgePlayer');
         this.caughtEl = this.container.querySelector('#dodgeCaught');
-        this.msgEl = this.container.querySelector('#dodgeMsg');
 
         this.measure();
         this.setupControls();
@@ -115,8 +116,7 @@ export default class DodgeGame {
     endGame(win) {
         this.playing = false;
         if (win) {
-            this.msgEl.textContent = 'PASS';
-            showToast('PASS', 'success');
+            showToast('Perfect! All blocks caught!', 'success');
             setTimeout(() => this.onSuccess(), 800);
         }
     }
@@ -166,7 +166,6 @@ export default class DodgeGame {
         this.dragging = false;
         this.caught = 0;
         
-        this.msgEl.textContent = 'Catch 10 blocks';
         this.caughtEl.textContent = this.caught;
         
         this.setPlayerX(this.arenaW / 2);

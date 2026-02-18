@@ -5,7 +5,7 @@
     margin-bottom: 10px; 
     text-align: left;
     padding-bottom: 10px;
-    border-bottom: 2px solid #000;
+    border-bottom: 1px solid #000;
     position: relative;
 }
 
@@ -55,10 +55,10 @@
     background: rgba(0,0,0,0.9);
     border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
-    color: #fff; font-size: 18px; opacity: 0; transition: all 0.3s;
-    font-weight: 600;
+    color: #fff; font-size: 14px; opacity: 0; transition: all 0.3s;
+    font-weight: 800;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 1px;
 }
 .avatar-wrapper:hover .avatar-overlay { 
     opacity: 1; 
@@ -120,8 +120,7 @@
     background: #fff;
     color: #000;
     border: 2px solid #000;
-    box-shadow: 3px 3px 0 rgba(0,0,0,1);
-    transform: translateY(-1px);
+    box-shadow: 2px 2px 0 rgba(0,0,0,0.8);
 }
 
 #userIdDisplay:active {
@@ -178,12 +177,7 @@
     color: #000;
     border: 2px solid #000;
     transform: translateY(-2px);
-    box-shadow: 4px 4px 0 rgba(0,0,0,1);
-}
-
-.friend-checkin-btn:active {
-    transform: translateY(0);
-    box-shadow: 2px 2px 0 rgba(0,0,0,1);
+    box-shadow: 2px 2px 0 rgba(0,0,0,0.8);
 }
 
 /* Sticky Friends Section */

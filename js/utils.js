@@ -17,13 +17,17 @@ export function showToast(msg, type = 'info') {
     div.style.bottom = '20px';
     div.style.left = '50%';
     div.style.transform = 'translateX(-50%)';
-    div.style.background = type === 'error' ? '#ff4d4f' : '#000';
+    div.style.background = '#000';
     div.style.color = '#fff';
     div.style.padding = '10px 20px';
     div.style.borderRadius = '0';
     div.style.border = '2px solid #000';
-    div.style.boxShadow = '4px 4px 0 rgba(0,0,0,0.5)';
+    div.style.boxShadow = '2px 2px 0 rgba(0,0,0,0.8)';
     div.style.zIndex = '9999';
+    div.style.fontWeight = '700';
+    div.style.fontSize = '13px';
+    div.style.textTransform = 'uppercase';
+    div.style.letterSpacing = '0.5px';
     document.body.appendChild(div);
     setTimeout(() => div.remove(), 3000);
 }

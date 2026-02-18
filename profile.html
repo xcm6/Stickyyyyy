@@ -12,9 +12,9 @@
         body { overflow-y: auto; padding-top: 100px; padding-bottom: 40px; height: auto; }
         .card { margin: 0 auto; }
         .calendar-friends-wrapper { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; flex-shrink: 0; }
-        .friend-checkins-section { margin: 0 !important; border-top: 2px solid #000; padding-top: 10px; display: flex; flex-direction: column; max-height: 200px; }
+        .friend-checkins-section { margin: 0 !important; border-top: 1px solid #000; padding-top: 10px; display: flex; flex-direction: column; max-height: 200px; }
         #friendCheckInsList { overflow-y: auto; flex: 1; }
-        .comments-section { margin-top: 10px !important; padding-top: 10px !important; border-top: 2px solid #000; flex: 1; display: flex; flex-direction: column; min-height: 0; }
+        .comments-section { margin-top: 10px !important; padding-top: 10px !important; border-top: 1px solid #000; flex: 1; display: flex; flex-direction: column; min-height: 0; }
         #commentsList { overflow-y: auto; flex: 1; margin-bottom: 8px; }
         .comment-input-area { flex-shrink: 0; }
     </style>
@@ -23,7 +23,12 @@
     <div class="topbar">
         <a href="index.html" class="logo">Sticky</a>
         <nav class="topnav">
+            <a href="dlc.html">DLC</a>
             <a href="index.html">Home</a>
+            <a href="leaderboard.html">Rank</a>
+            <a href="gallery.html">Gallery</a>
+            <a href="profile.html">Me</a>
+            <a id="authBtn" href="login.html">Login</a>
         </nav>
     </div>
 
@@ -32,14 +37,14 @@
             <div class="profile-header">
                 <div class="avatar-wrapper">
                     <img id="avatar" class="avatar" src="assets/default.png" alt="avatar">
-                    <div id="avatarOverlay" class="avatar-overlay">👤</div>
+                    <div id="avatarOverlay" class="avatar-overlay">EDIT</div>
                     <input type="file" id="avatarInput" accept="image/*" style="display: none;">
                 </div>
 
                 <div class="profile-info">
                     <div class="name-row">
                         <h2 id="username">Loading...</h2>
-                        <button id="editNameBtn" class="icon-btn">✎</button>
+                        <button id="editNameBtn" class="icon-btn edit-only">✎</button>
                     </div>
                     
                     <div id="editNameContainer" style="display:none; margin-top:5px;">
@@ -56,7 +61,7 @@
                     
                     <!-- Sticky Friends 按钮（仅当访问别人时显示） -->
                     <button id="friendCheckInBtn" class="friend-checkin-btn" style="display: none;">
-                        👋 Sticky Friend
+                        Sticky Friend
                     </button>
                 </div>
                 
@@ -79,7 +84,7 @@
                 
                 <!-- Sticky Friends 列表（仅自己的页面显示） -->
                 <div id="friendCheckInsSection" class="friend-checkins-section" style="display: none;">
-                    <h4 style="margin:0 0 10px 0; font-family:'Courier New', monospace; font-weight:800; font-size: 11px; text-transform: uppercase; letter-spacing: 1px;">👋 Sticky Friends</h4>
+                    <h4 style="margin:0 0 10px 0; font-family:'Courier New', monospace; font-weight:800; font-size: 11px; text-transform: uppercase; letter-spacing: 1px;">Sticky Friends</h4>
                     <div id="friendCheckInsList">Loading...</div>
                 </div>
             </div>

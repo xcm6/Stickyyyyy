@@ -21,15 +21,18 @@ export default class ReactionGame {
     render() {
         this.container.innerHTML = `
             <div class="reaction-container">
-                <div class="reaction-info">
-                    <div>Round: <b id="reactionRound">1</b>/2</div>
-                    <div>Good: <b id="reactionGood">0</b>/2</div>
-                    <div>Last: <b id="reactionLast">—</b></div>
+                <div class="reaction-header">
+                    <h3>Reaction Test</h3>
+                    <div class="reaction-stats">
+                        <div class="reaction-stat">Round: <span id="reactionRound">1</span>/2</div>
+                        <div class="reaction-stat">Good: <span id="reactionGood">0</span>/2</div>
+                        <div class="reaction-stat">Last: <span id="reactionLast">—</span></div>
+                    </div>
                 </div>
                 <div class="reaction-pad" id="reactionPad">
                     <div class="reaction-state" id="reactionState">CLICK TO START</div>
                 </div>
-                <div class="reaction-sub" id="reactionSub">
+                <div class="reaction-hint" id="reactionHint">
                     Wait... then click when the word appears. Don't click early.
                 </div>
             </div>
@@ -37,7 +40,7 @@ export default class ReactionGame {
 
         this.pad = this.container.querySelector('#reactionPad');
         this.stateEl = this.container.querySelector('#reactionState');
-        this.subEl = this.container.querySelector('#reactionSub');
+        this.hintEl = this.container.querySelector('#reactionHint');
         this.roundEl = this.container.querySelector('#reactionRound');
         this.goodEl = this.container.querySelector('#reactionGood');
         this.lastEl = this.container.querySelector('#reactionLast');
@@ -54,13 +57,15 @@ export default class ReactionGame {
         if (this.mode === 'waiting') {
             clearTimeout(this.timer);
             this.mode = 'idle';
+            this.pad.classList.remove('waiting');
             this.stateEl.textContent = 'TOO EARLY';
-            this.subEl.textContent = 'Click to try the round again.';
+            this.hintEl.textContent = 'Click to try the round again.';
             this.lastEl.textContent = 'early';
             return;
         }
 
         if (this.mode === 'show') {
+            this.pad.classList.remove('ready');
             const ms = Math.round(performance.now() - this.shownAt);
             this.lastEl.textContent = ms + 'ms';
 
@@ -81,11 +86,11 @@ export default class ReactionGame {
 
                 this.mode = 'idle';
                 this.stateEl.textContent = 'NICE';
-                this.subEl.textContent = `Good! Click to start Round ${this.round + 1}.`;
+                this.hintEl.textContent = `Good! Click to start Round ${this.round + 1}.`;
             } else {
                 this.mode = 'idle';
                 this.stateEl.textContent = 'SLOW';
-                this.subEl.textContent = `Try again. Need under ${this.GOOD_MS}ms. Click to retry Round ${this.round + 1}.`;
+                this.hintEl.textContent = `Try again. Need under ${this.GOOD_MS}ms. Click to retry Round ${this.round + 1}.`;
             }
             return;
         }
@@ -98,15 +103,19 @@ export default class ReactionGame {
     startRound() {
         clearTimeout(this.timer);
         this.mode = 'waiting';
+        this.pad.classList.remove('ready');
+        this.pad.classList.add('waiting');
         this.stateEl.textContent = 'WAIT...';
-        this.subEl.textContent = `Round ${this.round + 1}: wait for "${this.PROMPTS[this.round]}".`;
+        this.hintEl.textContent = `Round ${this.round + 1}: wait for "${this.PROMPTS[this.round]}".`;
         this.roundEl.textContent = this.round + 1;
 
         const delay = this.DELAY_MIN + Math.random() * (this.DELAY_MAX - this.DELAY_MIN);
         this.timer = setTimeout(() => {
             this.mode = 'show';
+            this.pad.classList.remove('waiting');
+            this.pad.classList.add('ready');
             this.stateEl.textContent = this.PROMPTS[this.round];
-            this.subEl.textContent = 'NOW CLICK!';
+            this.hintEl.textContent = 'NOW CLICK!';
             this.shownAt = performance.now();
         }, delay);
     }
@@ -114,9 +123,9 @@ export default class ReactionGame {
     win() {
         this.mode = 'done';
         this.stateEl.textContent = 'PASS ✓';
-        this.subEl.textContent = `2 good reactions under ${this.GOOD_MS}ms.`;
+        this.hintEl.textContent = `2 good reactions under ${this.GOOD_MS}ms.`;
         clearTimeout(this.timer);
-        showToast('PASS', 'success');
+        showToast('Perfect reaction time!', 'success');
         setTimeout(() => this.onSuccess(), 1000);
     }
 }

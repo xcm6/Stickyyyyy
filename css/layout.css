@@ -43,7 +43,7 @@
     background: #fff;
     color: #000;
     transform: translateY(-2px);
-    box-shadow: 4px 4px 0 rgba(0,0,0,1);
+    box-shadow: 2px 2px 0 rgba(0,0,0,0.8);
 }
 .topnav a:active {
     transform: translateY(0);
@@ -58,6 +58,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    overflow: visible;
 }
 
 @keyframes containerFadeIn {
@@ -70,20 +71,18 @@
     border: 2px solid #000;
     border-radius: 0;
     padding: 20px;
-    box-shadow: 4px 4px 0 rgba(0,0,0,1);
+    box-shadow: 3px 3px 0 rgba(0,0,0,0.8);
     text-align: center;
     transition: box-shadow 0.2s ease;
-    width: 1000px;
-    height: 550px;
-    min-width: 1000px;
-    min-height: 550px;
+    width: 100%;
     max-width: 1000px;
-    max-height: 550px;
+    height: auto;
+    min-height: 550px;
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    overflow: hidden;
+    overflow: visible;
 }
 
 /* 全局空状态样式 */
@@ -98,52 +97,169 @@
     grid-column: 1/-1;
 }
 
-/* 全局按钮样式 - 默认黑底白字（第1个按钮） */
+/* Emoji Picker 弹出框样式 */
+.emoji-picker {
+    display: none;
+    position: fixed !important;
+    left: 50% !important;
+    top: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    background: white;
+    padding: 16px;
+    border: 2px solid #000;
+    box-shadow: 3px 3px 0 rgba(0,0,0,0.8);
+    z-index: 9999 !important;
+    width: 360px;
+    max-width: calc(100vw - 40px);
+    max-height: calc(100vh - 40px);
+    animation: popupFadeIn 0.3s ease-out;
+    flex-direction: column;
+    gap: 12px;
+    box-sizing: border-box;
+    overflow: visible;
+}
+
+.emoji-picker.show {
+    display: flex !important;
+}
+
+.emoji-picker-header {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-align: center;
+    color: #000;
+    text-transform: uppercase;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #000;
+}
+
+.emoji-picker-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+@keyframes popupFadeIn {
+    from { 
+        opacity: 0; 
+        transform: translate(-50%, -50%) scale(0.9);
+    }
+    to { 
+        opacity: 1; 
+        transform: translate(-50%, -50%) scale(1);
+    }
+}
+
+.emoji-picker-option {
+    font-size: 32px;
+    cursor: pointer;
+    padding: 8px;
+    transition: all 0.2s ease;
+    user-select: none;
+    border: 2px solid transparent;
+    background: #f5f5f7;
+    width: 100%;
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+}
+
+.emoji-picker-option:hover {
+    transform: scale(1.1);
+    border: 2px solid #000;
+    background: #fff;
+    box-shadow: 2px 2px 0 rgba(0,0,0,0.5);
+}
+
+.emoji-picker-option:active {
+    transform: scale(1.05);
+}
+
+/* Overlay背景 - 点击关闭 - 更透明 */
+.emoji-picker-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.1);
+    z-index: 9998;
+    backdrop-filter: blur(1px);
+}
+
+.emoji-picker-overlay.show {
+    display: block;
+}
+
+/* Mood显示区域 */
+.mood-selector {
+    margin-top: 30px;
+    position: relative;
+    display: inline-block;
+}
+
+#currentMoodDisplay {
+    font-size: 56px;
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.2s ease;
+    display: inline-block;
+    padding: 8px;
+    border: 2px solid transparent;
+}
+
+#currentMoodDisplay:hover {
+    transform: scale(1.1) rotate(-5deg);
+    border: 2px solid #000;
+    background: #f5f5f7;
+    box-shadow: 2px 2px 0 rgba(0,0,0,0.5);
+}
+
+#currentMoodDisplay:active {
+    transform: scale(1.05);
+}
+
+/* 全局按钮样式 */
 .primary-btn {
-    padding: 12px 24px;
-    font-size: 14px;
+    padding: 10px 18px;
+    font-size: 13px;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: 0.5px;
     border: 2px solid #000;
     border-radius: 0;
     cursor: pointer;
-    transition: all 0.2s ease;
-    box-shadow: 3px 3px 0 rgba(0,0,0,1);
+    transition: all 0.2s;
+    box-shadow: 2px 2px 0 rgba(0,0,0,0.8);
     background: #000;
     color: #fff;
-    display: inline-block;
-    text-decoration: none;
-    text-align: center;
-    font-family: inherit;
 }
 
 .primary-btn:hover {
     background: #fff;
     color: #000;
     border: 2px solid #000;
-    box-shadow: 5px 5px 0 rgba(0,0,0,1);
+    box-shadow: 3px 3px 0 rgba(0,0,0,0.8);
     transform: translateY(-2px);
 }
 
 .primary-btn:active {
-    transform: translateY(0) scale(0.98);
-    box-shadow: 2px 2px 0 rgba(0,0,0,1);
+    transform: translateY(0);
+    box-shadow: 1px 1px 0 rgba(0,0,0,1);
 }
 
-/* 全宽按钮变体 */
-.primary-btn.full-width {
-    width: 100%;
-    display: block;
-}
-
-/* 白底按钮 - 用于多按钮时的第2、4、6...个 */
-.btn-light {
+.secondary-btn {
     background: #fff;
     color: #000;
 }
 
-.btn-light:hover {
+.secondary-btn:hover {
     background: #000;
     color: #fff;
 }
@@ -153,20 +269,20 @@
     position: fixed;
     bottom: 30px;
     left: 30px;
-    width: 60px;
-    height: 60px;
+    width: 56px;
+    height: 56px;
     background: #fff;
     color: #000;
     border-radius: 0;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 28px;
+    font-size: 24px;
     cursor: pointer;
-    box-shadow: 4px 4px 0 rgba(0,0,0,1);
+    box-shadow: 2px 2px 0 rgba(0,0,0,0.8);
     transition: all 0.2s;
     z-index: 999;
-    border: 3px solid #000;
+    border: 2px solid #000;
 }
 
 /* 有通知时边框变红 */
@@ -176,13 +292,13 @@
 }
 
 @keyframes pulse {
-    0%, 100% { box-shadow: 4px 4px 0 rgba(0,0,0,1); }
-    50% { box-shadow: 4px 4px 0 rgba(255,77,79,0.5); }
+    0%, 100% { box-shadow: 2px 2px 0 rgba(0,0,0,0.8); }
+    50% { box-shadow: 2px 2px 0 rgba(255,77,79,0.5); }
 }
 
 .notif-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 6px 6px 0 rgba(0,0,0,1);
+    box-shadow: 3px 3px 0 rgba(0,0,0,0.8);
 }
 
 .notif-btn:active {
@@ -193,21 +309,21 @@
 /* 通知数量徽章 */
 .notif-badge {
     position: absolute;
-    top: -8px;
-    right: -8px;
-    background: #ff4d4f;
+    top: -6px;
+    right: -6px;
+    background: #000;
     color: #fff;
     border-radius: 0;
-    min-width: 22px;
-    height: 22px;
+    min-width: 20px;
+    height: 20px;
     padding: 0 4px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 11px;
-    font-weight: 900;
+    font-size: 10px;
+    font-weight: 800;
     border: 2px solid #000;
-    box-shadow: 2px 2px 0 rgba(0,0,0,1);
+    box-shadow: 1px 1px 0 rgba(0,0,0,0.8);
     animation: pop 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }
 
@@ -222,14 +338,14 @@
     position: fixed;
     bottom: 100px;
     left: 30px;
-    width: 360px;
-    max-height: 500px;
+    width: 340px;
+    max-height: 480px;
     background: #fff;
     border: 2px solid #000;
-    box-shadow: 4px 4px 0 rgba(0,0,0,1);
-    z-index: 998;
+    box-shadow: 3px 3px 0 rgba(0,0,0,0.8);
+    z-index: 1000;
     border-radius: 0;
-    overflow: hidden;
+    overflow: visible;
     animation: slideUp 0.3s ease-out;
 }
 
@@ -264,11 +380,38 @@
 }
 
 .close-notif-btn:hover {
-    background: #fff;
-    color: #000;
+    background: #000;
+    color: #fff;
     border: 2px solid #000;
     transform: rotate(90deg) scale(1.1);
-    box-shadow: 2px 2px 0 rgba(0,0,0,1);
+    box-shadow: 2px 2px 0 rgba(0,0,0,0.8);
+}
+
+.clear-notif-btn {
+    background: #fff;
+    border: 2px solid #000;
+    font-size: 10px;
+    cursor: pointer;
+    color: #000;
+    padding: 4px 10px;
+    border-radius: 0;
+    transition: all 0.2s;
+    text-transform: uppercase;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+.clear-notif-btn:hover {
+    background: #fff;
+    border: 2px solid #000;
+    color: #000;
+    transform: translateY(-2px);
+    box-shadow: 2px 2px 0 rgba(0,0,0,0.8);
+}
+
+.clear-notif-btn:active {
+    transform: translateY(0);
+    box-shadow: none;
 }
 
 /* 通知列表 */
@@ -291,15 +434,15 @@
     color: #000;
     cursor: pointer;
     transition: all 0.2s;
-    box-shadow: 3px 3px 0 rgba(0,0,0,1);
+    box-shadow: 2px 2px 0 rgba(0,0,0,0.8);
 }
 
 .notif-card:hover {
     background: #fff;
     color: #000;
-    border: 3px solid #000;
+    border: 2px solid #000;
     transform: translateY(-2px);
-    box-shadow: 5px 5px 0 rgba(0,0,0,1);
+    box-shadow: 3px 3px 0 rgba(0,0,0,0.8);
 }
 
 .notif-icon {
@@ -344,14 +487,51 @@
 }
 
 /* 响应式设计 */
+@media (max-width: 1024px) {
+    .topbar {
+        padding: 0 20px;
+    }
+    
+    .container {
+        padding: 15px 20px;
+    }
+    
+    .card {
+        max-width: 100%;
+        min-height: 500px;
+        padding: 20px 15px;
+    }
+}
+
 @media (max-width: 768px) {
+    .topbar {
+        height: 60px;
+        padding: 0 15px;
+    }
+    
+    .logo {
+        font-size: 20px;
+    }
+    
+    .topnav {
+        gap: 2px;
+    }
+    
+    .topnav a {
+        padding: 6px 10px;
+        font-size: 12px;
+    }
+    
     .container {
         max-width: 100%;
-        padding: 15px;
+        padding: 10px 15px;
     }
+    
     .card {
-        padding: 25px 20px;
-        border-radius: 12px;
+        padding: 20px 15px;
+        min-height: 450px;
+        border-radius: 0;
+        box-shadow: 3px 3px 0 rgba(0,0,0,1);
     }
     
     .notif-panel {
@@ -371,8 +551,31 @@
 }
 
 @media (max-width: 480px) {
+    .topbar {
+        height: 55px;
+        padding: 0 10px;
+        border-bottom: 2px solid #000;
+    }
+    
+    .logo {
+        font-size: 18px;
+    }
+    
+    .topnav a {
+        padding: 5px 8px;
+        font-size: 11px;
+        letter-spacing: 0.3px;
+    }
+    
+    .container {
+        padding: 8px 10px;
+    }
+    
     .card {
-        padding: 20px 15px;
+        padding: 15px 10px;
+        min-height: 400px;
+        border: 1px solid #000;
+        box-shadow: 2px 2px 0 rgba(0,0,0,1);
     }
     
     .notif-btn {
@@ -381,11 +584,44 @@
         width: 52px;
         height: 52px;
         font-size: 22px;
+        border: 2px solid #000;
+        box-shadow: 3px 3px 0 rgba(0,0,0,1);
     }
     
     .notif-badge {
         width: 20px;
         height: 20px;
         font-size: 10px;
+    }
+    
+    .primary-btn {
+        padding: 10px 16px;
+        font-size: 12px;
+        box-shadow: 2px 2px 0 rgba(0,0,0,1);
+    }
+    
+    .emoji-picker {
+        width: 280px;
+        padding: 15px;
+        max-width: calc(100vw - 30px);
+        max-height: calc(100vh - 30px);
+    }
+    
+    .emoji-picker-header {
+        font-size: 10px;
+        padding-bottom: 6px;
+    }
+    
+    .emoji-picker-grid {
+        gap: 6px;
+    }
+    
+    .emoji-picker-option {
+        font-size: 28px;
+        padding: 8px;
+    }
+    
+    #currentMoodDisplay {
+        font-size: 56px;
     }
 }

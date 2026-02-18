@@ -21,9 +21,11 @@ export default class TargetGame {
     render() {
         this.container.innerHTML = `
             <div class="target-container">
-
-                <div class="target-info">
-                    <div>Hits: <b id="targetHits">0</b> / ${this.GOAL}</div>
+                <div class="target-header">
+                    <h3>Hit the Target</h3>
+                    <div class="target-progress">
+                        Hits: <span id="targetHits">0</span>/${this.GOAL}
+                    </div>
                 </div>
                 <div class="target-arena" id="targetArena"></div>
                 <div class="target-hint">Click the moving target. ${this.GOAL} hits to win.</div>
@@ -65,7 +67,7 @@ export default class TargetGame {
             this.hits++;
             this.hitsEl.textContent = this.hits;
 
-            this.target.style.background = '#4CAF50';
+            this.target.style.background = '#000';
             this.target.style.transform = 'translate(-50%, -50%) scale(1.3)';
 
             setTimeout(() => {
@@ -73,7 +75,7 @@ export default class TargetGame {
 
                 if (this.hits >= this.GOAL) {
                     this.playing = false;
-                    showToast('PASS', 'success');
+                    showToast('Perfect aim!', 'success');
                     setTimeout(() => this.onSuccess(), 500);
                     return;
                 }

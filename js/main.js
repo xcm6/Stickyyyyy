@@ -31,14 +31,7 @@ async function init() {
         // 未登录状态
         if(authBtn) authBtn.innerText = 'Login';
         const gameContainer = document.getElementById('gameContainer');
-        if(gameContainer) {
-            gameContainer.innerHTML = `
-                <div style="display: flex; flex-direction: column; align-items: center; gap: 20px;">
-                    <p class="empty-state">Login to Keep Sticky</p>
-                    <a href="login.html" class="primary-btn">Login / Signup</a>
-                </div>
-            `;
-        }
+        if(gameContainer) gameContainer.innerHTML = '<p class="empty-state">Login to Keep Sticky</p>';
     }
 }
 
@@ -148,6 +141,18 @@ async function checkNotifications(userId) {
     closeBtn.onclick = () => {
         notifPanel.style.display = 'none';
     };
+    
+    // 清除全部通知
+    const clearAllBtn = document.getElementById('clearAllNotifBtn');
+    if (clearAllBtn) {
+        clearAllBtn.onclick = () => {
+            notifList.innerHTML = '';
+            localStorage.setItem(lastReadKey, new Date().toISOString());
+            notifBadge.style.display = 'none';
+            notifBtn.classList.remove('has-notif');
+            notifPanel.style.display = 'none';
+        };
+    }
 
     // 点击外部关闭
     document.addEventListener('click', (e) => {
@@ -249,42 +254,50 @@ async function setupMainMoodPicker() {
     if (!user) return;
     const display = document.getElementById('currentMoodDisplay');
     const picker = document.getElementById('mainEmojiPicker');
-    if(!display || !picker) return;
+    const overlay = document.getElementById('emojiPickerOverlay');
+    if(!display || !picker || !overlay) return;
 
     const { data: profile } = await supabase.from('profiles').select('mood').eq('id', user.id).single();
     display.innerText = profile?.mood || '⚙️';
-    
-    // Hover effect
-    display.onmouseenter = () => {
-        display.style.transform = 'scale(1.1)';
-    };
-    display.onmouseleave = () => {
-        display.style.transform = 'scale(1)';
+
+    // 打开/关闭 picker 的函数
+    const togglePicker = (show) => {
+        if (show) {
+            picker.classList.add('show');
+            overlay.classList.add('show');
+        } else {
+            picker.classList.remove('show');
+            overlay.classList.remove('show');
+        }
     };
 
     display.onclick = (e) => {
         e.stopPropagation();
-        picker.style.display = picker.style.display === 'flex' ? 'none' : 'flex';
+        const isShowing = picker.classList.contains('show');
+        togglePicker(!isShowing);
     };
 
+    // 点击 overlay 关闭
+    overlay.onclick = () => {
+        togglePicker(false);
+    };
+
+    // 点击其他地方关闭
     document.addEventListener('click', (e) => {
-        if (!picker.contains(e.target) && e.target !== display) picker.style.display = 'none';
+        if (!picker.contains(e.target) && e.target !== display && !overlay.contains(e.target)) {
+            togglePicker(false);
+        }
     });
 
     const moods = ['🔥', '💀', '🍀', '💤', '🎉', '💻', '☕', '😭', '😡', '❤️', '🚀', '✨'];
-    picker.innerHTML = moods.map(m => 
-        `<button class="main-mood-btn" data-mood="${m}" style="font-size:32px; border:2px solid #000; background:#fff; cursor:pointer; transition: all 0.2s ease;">${m}</button>`
-    ).join('');
+    picker.innerHTML = `
+        <div class="emoji-picker-header">SET YOUR MOOD</div>
+        <div class="emoji-picker-grid">
+            ${moods.map(m => `<button class="emoji-picker-option" data-mood="${m}">${m}</button>`).join('')}
+        </div>
+    `;
 
-    picker.querySelectorAll('.main-mood-btn').forEach(btn => {
-        btn.onmouseenter = () => {
-            btn.style.transform = 'scale(1.1)';
-            btn.style.boxShadow = '2px 2px 0 rgba(0,0,0,1)';
-        };
-        btn.onmouseleave = () => {
-            btn.style.transform = 'scale(1)';
-            btn.style.boxShadow = 'none';
-        };
+    picker.querySelectorAll('.emoji-picker-option').forEach(btn => {
         btn.onclick = async (e) => {
             e.stopPropagation();
             const m = btn.dataset.mood;
@@ -294,7 +307,8 @@ async function setupMainMoodPicker() {
             await supabase.from('check_ins').update({ mood: m }).eq('user_id', user.id).eq('check_in_date', today);
             
             display.innerText = m;
-            picker.style.display = 'none';
+            togglePicker(false);
+            showToast(`Mood updated to ${m}`, 'success');
         };
     });
 }

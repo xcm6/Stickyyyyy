@@ -1,10 +1,13 @@
-/* 射击目标游戏样式 */
+/* Target Game - 打靶游戏 */
 .target-container {
-    padding: 10px;
+    padding: 20px 15px;
+    min-height: 350px;
     display: flex;
     flex-direction: column;
-    animation: fadeIn 0.3s ease-in;
+    justify-content: center;
     align-items: center;
+    animation: fadeIn 0.3s ease-in;
+    gap: 15px;
 }
 
 @keyframes fadeIn {
@@ -12,52 +15,132 @@
     to { opacity: 1; transform: scale(1); }
 }
 
-.target-info {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin: 8px 0;
+.target-header {
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.target-header h3 {
+    font-size: 20px;
+    font-weight: 800;
+    margin: 0 0 8px 0;
+    color: #000;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.target-progress {
     font-size: 14px;
-    width: 480px;
+    font-weight: 700;
+    color: #666;
+    letter-spacing: 1px;
+}
+
+.target-progress span {
+    color: #000;
+    font-size: 18px;
+    font-weight: 900;
 }
 
 .target-arena {
     position: relative;
-    width: 480px;
-    height: 280px;
+    width: 100%;
+    max-width: 500px;
+    height: 250px;
+    background: #f5f5f7;
     border: 2px solid #000;
-    border-radius: 0;
+    box-shadow: 2px 2px 0 rgba(0,0,0,0.8);
     overflow: hidden;
-    background: #fff;
-    margin: 8px auto;
     cursor: crosshair;
 }
 
 .target-dot {
     position: absolute;
-    width: 45px;
-    height: 45px;
-    border-radius: 50%;
-    border: 3px solid #000;
+    width: 44px;
+    height: 44px;
     background: #fff;
-    transform: translate(-50%, -50%);
+    border: 2px solid #000;
+    border-radius: 50%;
     cursor: pointer;
+    transform: translate(-50%, -50%);
     transition: all 0.2s ease;
-    box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.3);
+    box-shadow: 2px 2px 0 rgba(0,0,0,0.5);
+}
+
+.target-dot::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 16px;
+    height: 16px;
+    background: #000;
+    border-radius: 50%;
+}
+
+.target-dot::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 6px;
+    height: 6px;
+    background: #fff;
+    border-radius: 50%;
 }
 
 .target-dot:hover {
     transform: translate(-50%, -50%) scale(1.1);
-}
-
-.target-dot:active {
-    transform: translate(-50%, -50%) scale(0.95);
+    box-shadow: 0 0 0 6px rgba(0, 0, 0, 0.2);
 }
 
 .target-hint {
     font-size: 12px;
     color: #888;
     text-align: center;
-    margin-top: 3px;
-    width: 480px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 10px;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .target-container {
+        padding: 15px 10px;
+        gap: 12px;
+    }
+    
+    .target-arena {
+        max-width: 100%;
+        height: 220px;
+    }
+    
+    .target-dot {
+        width: 40px;
+        height: 40px;
+        border: 2px solid #000;
+    }
+    
+    .target-dot::before {
+        width: 14px;
+        height: 14px;
+    }
+    
+    .target-dot::after {
+        width: 5px;
+        height: 5px;
+    }
+}
+
+@media (max-width: 480px) {
+    .target-arena {
+        height: 200px;
+    }
+    
+    .target-dot {
+        width: 36px;
+        height: 36px;
+    }
 }

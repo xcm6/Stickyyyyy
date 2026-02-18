@@ -27,10 +27,9 @@
         .rank-item { 
             display: flex; justify-content: space-between; align-items: center; 
             padding: 12px 16px; background: #fff; border-radius: 0; 
-            border: 2px solid #000; cursor: pointer; transition: all 0.2s ease;
+            border: 1px solid #000; cursor: pointer; transition: all 0.2s ease;
         }
-        .rank-item:hover { transform: translateY(-2px); box-shadow: 4px 4px 0 rgba(0,0,0,1); }
-        .rank-item:active { transform: translateY(0); box-shadow: 2px 2px 0 rgba(0,0,0,1); }
+        .rank-item:active { transform: none; background: #fafafa; }
         
         /* 左侧信息 */
         .rank-left { display: flex; align-items: center; gap: 15px; }
@@ -48,18 +47,28 @@
 
         /* Groups & Action */
         .my-groups-list { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
-        .group-card { background: #fff; padding: 15px; border-radius: 0; text-align: center; cursor: pointer; border: 2px solid #000; transition: all 0.2s ease; }
-        .group-card:hover { transform: translateY(-2px); box-shadow: 4px 4px 0 rgba(0,0,0,1); }
+        .group-card { background: #fff; padding: 15px; border-radius: 0; text-align: center; cursor: pointer; border: 1px solid #000; }
         .group-card.active { background: #000; color: #fff; border-color: #000; }
         .action-area { position: absolute; bottom: 20px; left: 20px; right: 20px; display: none; gap: 10px; }
         .action-area .primary-btn { flex: 1; }
+        
+        /* Global 双列布局响应式 */
+        .global-rank-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        @media (max-width: 768px) {
+            .global-rank-grid { grid-template-columns: 1fr; }
+        }
     </style>
 </head>
 <body>
     <div class="topbar">
         <a href="index.html" class="logo">Sticky</a>
         <nav class="topnav">
+            <a href="dlc.html">DLC</a>
             <a href="index.html">Home</a>
+            <a href="leaderboard.html">Rank</a>
+            <a href="gallery.html">Gallery</a>
+            <a href="profile.html">Me</a>
+            <a id="authBtn" href="login.html">Login</a>
         </nav>
     </div>
 
@@ -68,11 +77,21 @@
             <div class="rank-tabs">
                 <button class="tab-btn active" id="tabGlobal">Global</button>
                 <button class="tab-btn" id="tabGroup">Groups</button>
-                <button class="tab-btn" id="tabFriends">Friends</button> </div>
+                <button class="tab-btn" id="tabFriends">Friends</button>
+            </div>
 
             <div id="globalView">
                 <div class="view-content">
-                    <div id="globalList" class="rank-list">Loading...</div>
+                    <div class="global-rank-grid">
+                        <div>
+                            <h3 style="margin: 0 0 15px 0; font-size: 14px; font-weight: 800; text-align: center; color: #666; text-transform: uppercase; letter-spacing: 1px;">Top Players</h3>
+                            <div id="globalList" class="rank-list">Loading...</div>
+                        </div>
+                        <div>
+                            <h3 style="margin: 0 0 15px 0; font-size: 14px; font-weight: 800; text-align: center; color: #666; text-transform: uppercase; letter-spacing: 1px;">Top Groups</h3>
+                            <div id="groupCheckInRankList" class="rank-list">Loading...</div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -92,7 +111,7 @@
 
             <div class="action-area" id="groupActions">
                 <button class="primary-btn" id="joinBtn">Join Group</button>
-                <button class="primary-btn btn-light" id="createBtn">Create New</button>
+                <button class="primary-btn secondary-btn" id="createBtn">Create New</button>
             </div>
             
             <div class="action-area" id="friendActions">
@@ -107,6 +126,23 @@
         import { showToast } from './js/utils.js';
 
         let currentUser = null;
+
+        async function checkAuth() {
+            const user = await getCurrentUser();
+            const authBtn = document.getElementById('authBtn');
+            if (user) {
+                authBtn.textContent = 'Logout';
+                authBtn.href = '#';
+                authBtn.onclick = async (e) => {
+                    e.preventDefault();
+                    await supabase.auth.signOut();
+                    window.location.href = 'login.html';
+                };
+            } else {
+                authBtn.textContent = 'Login';
+                authBtn.href = 'login.html';
+            }
+        }
 
         async function init() {
             currentUser = await getCurrentUser();
@@ -144,9 +180,13 @@
 
         // --- 1. Global Rank ---
         async function loadGlobalRank() {
+            // 加载个人排行
             const list = document.getElementById('globalList');
             const { data: profiles } = await supabase.from('profiles').select('*').order('total_check_ins', { ascending: false }).limit(50);
             renderList(list, profiles);
+            
+            // 同时加载组排行
+            loadGroupCheckInRank();
         }
 
         // --- 2. Group Rank ---
@@ -196,6 +236,40 @@
             const friendIds = friendsData.map(f => f.friend_id);
             const { data: profiles } = await supabase.from('profiles').select('*').in('id', friendIds);
             renderList(list, profiles);
+        }
+
+        // --- 4. Group Check-in Rank ---
+        async function loadGroupCheckInRank() {
+            const list = document.getElementById('groupCheckInRankList');
+            list.innerHTML = '<p style="color:#aaa">Loading...</p>';
+
+            // 查询所有groups，按total_group_check_ins降序排列
+            const { data: groups } = await supabase
+                .from('groups')
+                .select('id, name, invite_code, total_group_check_ins')
+                .order('total_group_check_ins', { ascending: false })
+                .limit(50);
+
+            if (!groups || groups.length === 0) {
+                list.innerHTML = '<p class="empty-state">No groups yet</p>';
+                return;
+            }
+
+            // 渲染group排行榜
+            list.innerHTML = groups.map((g, i) => {
+                const checkIns = g.total_group_check_ins || 0;
+                return `
+                <div class="rank-item">
+                    <div class="rank-left">
+                        <div class="rank-idx">${i + 1}</div>
+                        <div class="user-info">
+                            <span class="user-name">${g.name}</span>
+                            <span class="user-id-tag">CODE: ${g.invite_code}</span>
+                        </div>
+                    </div>
+                    <div class="rank-days">${checkIns}<span>d</span></div>
+                </div>`;
+            }).join('');
         }
 
         async function handleAddFriend() {
@@ -281,6 +355,7 @@
             showToast("Joined!"); loadMyGroups();
         }
 
+        checkAuth();
         init();
     </script>
 </body>
