@@ -66,13 +66,21 @@
             const user = await getCurrentUser();
             if (!user) return window.location.href = 'login.html';
 
-            const { data: photos } = await supabase
+            const grid = document.getElementById('galleryGrid');
+            grid.innerHTML = 'Loading...';
+
+            const { data: photos, error } = await supabase
                 .from('check_ins')
                 .select('*')
                 .eq('user_id', user.id)
                 .order('created_at', { ascending: false });
 
-            const grid = document.getElementById('galleryGrid');
+            if (error) {
+                console.error('Error loading gallery:', error);
+                grid.innerHTML = '<p class="empty-state">Error loading photos</p>';
+                return;
+            }
+
             if (!photos || photos.length === 0) {
                 grid.innerHTML = '<p class="empty-state">Keep Sticking</p>';
                 return;
@@ -82,19 +90,25 @@
                 const date = new Date(p.created_at);
                 const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
                 const timeStr = date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+                
+                // 处理 photo_url：如果是 base64，直接使用；如果是 URL，也直接使用
+                const photoUrl = p.photo_url || '';
+                
                 return `
                     <div class="photo-item" data-photo-id="${p.id}">
-                        <img src="${p.photo_url}" alt="checkin">
+                        <img src="${photoUrl}" alt="checkin" onerror="this.style.display='none'; this.parentElement.querySelector('.photo-error').style.display='block';">
+                        <div class="photo-error" style="display:none; padding:20px; text-align:center; color:#999; font-size:12px;">Image failed to load</div>
                         <div class="photo-date">${dateStr} • ${timeStr}</div>
                         <div class="photo-actions">
-                            <button class="action-btn download-btn" data-url="${p.photo_url}" data-date="${p.check_in_date}" title="Download">⬇</button>
+                            <button class="action-btn download-btn" data-url="${photoUrl}" data-date="${p.check_in_date}" title="Download">⬇</button>
                             <button class="action-btn delete-btn" data-id="${p.id}" title="Delete">✕</button>
                         </div>
                     </div>
                 `;
             }).join('');
             
-            // 事件委托
+            // 移除旧的事件监听器，添加新的事件委托
+            grid.removeEventListener('click', handleGridClick);
             grid.addEventListener('click', handleGridClick);
         }
         

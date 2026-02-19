@@ -6,9 +6,6 @@
  * - "organismState" - for real-time state listening
  */
 
-import { initializeApp } from "firebase/app";
-import { getDatabase, ref, push, set, update, onValue, serverTimestamp } from "firebase/database";
-
 const firebaseConfig = {
   apiKey: "AIzaSyDj-SCNES5gK3YdbOii4nqWvcHETveWJLU",
   authDomain: "machine-learning-9af8d.firebaseapp.com",
@@ -20,9 +17,52 @@ const firebaseConfig = {
   measurementId: "G-SMX8YJCX02"
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
+// Lazy load Firebase SDK using unpkg CDN
+let firebaseModules = null;
+let app = null;
+let db = null;
+
+async function loadFirebaseModules() {
+    if (firebaseModules) return firebaseModules;
+    
+    try {
+        // Use unpkg CDN which supports ES modules
+        const [appModule, dbModule] = await Promise.all([
+            import('https://unpkg.com/firebase@10.7.1/app/dist/index.esm.js'),
+            import('https://unpkg.com/firebase@10.7.1/database/dist/index.esm.js')
+        ]);
+        
+        firebaseModules = {
+            initializeApp: appModule.initializeApp,
+            getDatabase: dbModule.getDatabase,
+            ref: dbModule.ref,
+            push: dbModule.push,
+            set: dbModule.set,
+            update: dbModule.update,
+            onValue: dbModule.onValue,
+            serverTimestamp: dbModule.serverTimestamp
+        };
+    } catch (error) {
+        console.error('Failed to load Firebase modules:', error);
+        throw error;
+    }
+    
+    return firebaseModules;
+}
+
+async function initFirebase() {
+    if (app && db) return { app, db, modules: firebaseModules };
+    
+    const modules = await loadFirebaseModules();
+    if (!modules) {
+        throw new Error('Firebase modules failed to load');
+    }
+    
+    app = modules.initializeApp(firebaseConfig);
+    db = modules.getDatabase(app);
+    
+    return { app, db, modules };
+}
 
 /**
  * Upload a check-in/game result to Firebase
@@ -34,6 +74,8 @@ const db = getDatabase(app);
  * @returns {Promise<string>} The pushed key/reference
  */
 export async function uploadCheckin({ userId, gameId, score, payload }) {
+  const { db, modules } = await initFirebase();
+  const { ref, push, set } = modules;
   const checkinsRef = ref(db, "checkins");
   const newCheckinRef = push(checkinsRef);
   
@@ -51,9 +93,11 @@ export async function uploadCheckin({ userId, gameId, score, payload }) {
 /**
  * Listen to organismState changes in real-time
  * @param {Function} callback - Called with (data) whenever state changes
- * @returns {Function} Unsubscribe function
+ * @returns {Promise<Function>} Unsubscribe function
  */
-export function listenOrganismState(callback) {
+export async function listenOrganismState(callback) {
+  const { db, modules } = await initFirebase();
+  const { ref, onValue } = modules;
   const organismStateRef = ref(db, "organismState");
   
   const unsubscribe = onValue(organismStateRef, (snapshot) => {
@@ -70,7 +114,8 @@ export function listenOrganismState(callback) {
  * @returns {Promise<void>}
  */
 export async function setOrganismState(data) {
+  const { db, modules } = await initFirebase();
+  const { ref, set } = modules;
   const organismStateRef = ref(db, "organismState");
   await set(organismStateRef, data);
 }
-

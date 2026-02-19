@@ -36,7 +36,19 @@ export default class PuzzleGame {
             card.className = 'puzzle-card';
             card.dataset.val = emoji;
             card.dataset.idx = index;
-            card.innerText = ''; // 默认不显示
+            card.setAttribute('aria-label', 'Card');
+            
+            // 创建前后两面
+            const front = document.createElement('div');
+            front.className = 'puzzle-card-front';
+            front.textContent = '?';
+            
+            const back = document.createElement('div');
+            back.className = 'puzzle-card-back';
+            back.textContent = emoji;
+            
+            card.appendChild(front);
+            card.appendChild(back);
             
             card.onclick = () => this.flip(card);
             grid.appendChild(card);
@@ -54,7 +66,6 @@ export default class PuzzleGame {
 
         // 翻开动作
         card.classList.add('open');
-        card.innerText = card.dataset.val;
         this.flipped.push(card);
 
         // 检查匹配
@@ -89,9 +100,7 @@ export default class PuzzleGame {
                 // 匹配失败，延时盖回
                 setTimeout(() => {
                     c1.classList.remove('open');
-                    c1.innerText = '';
                     c2.classList.remove('open');
-                    c2.innerText = '';
                     this.flipped = [];
                     this.isProcessing = false;
                 }, 1000);

@@ -3,7 +3,6 @@ import { ensureProfile, getStreak, performCheckIn } from './data.js';
 import GameManager from './games/GameManager.js';
 import { showToast } from './utils.js';
 import supabase from './supabaseClient.js';
-import { uploadCheckin, listenOrganismState } from './firebase.js';
 
 async function init() {
     const user = await getCurrentUser();
@@ -327,8 +326,18 @@ async function checkAndResetDailyMood(userId) {
     }
 }
 
-// Firebase integration - test wiring
-function setupFirebaseIntegration() {
+// Firebase integration - test wiring (optional, won't block if Firebase fails)
+async function setupFirebaseIntegration() {
+    let firebaseModule;
+    try {
+        firebaseModule = await import('./firebase.js');
+    } catch (error) {
+        console.warn('Firebase module failed to load, skipping Firebase integration:', error);
+        return;
+    }
+    
+    const { uploadCheckin, listenOrganismState } = firebaseModule;
+    
     // Test upload button
     const uploadBtn = document.getElementById('uploadBtn');
     if (uploadBtn) {
@@ -351,14 +360,18 @@ function setupFirebaseIntegration() {
     // Listen to organismState changes
     const debugStateEl = document.getElementById('debugState');
     if (debugStateEl) {
-        const unsubscribe = listenOrganismState((data) => {
-            debugStateEl.textContent = JSON.stringify(data, null, 2);
-        });
-        
-        // Cleanup on page unload (optional)
-        window.addEventListener('beforeunload', () => {
-            unsubscribe();
-        });
+        try {
+            const unsubscribe = await listenOrganismState((data) => {
+                debugStateEl.textContent = JSON.stringify(data, null, 2);
+            });
+            
+            // Cleanup on page unload (optional)
+            window.addEventListener('beforeunload', () => {
+                unsubscribe();
+            });
+        } catch (error) {
+            console.error('Failed to setup organismState listener:', error);
+        }
     }
 }
 
