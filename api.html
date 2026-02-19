@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sticky API - Processing Data</title>
+    <style>
+        body {
+            font-family: monospace;
+            padding: 20px;
+            background: #fafafa;
+        }
+        .api-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border: 2px solid #000;
+            box-shadow: 2px 2px 0 rgba(0,0,0,0.8);
+        }
+        h1 { font-size: 24px; font-weight: 900; margin-bottom: 20px; }
+        .endpoint {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f5f5f5;
+            border: 1px solid #000;
+        }
+        .endpoint h3 { margin-top: 0; font-size: 16px; }
+        code {
+            background: #000;
+            color: #0f0;
+            padding: 2px 6px;
+            font-size: 12px;
+        }
+        button {
+            background: #000;
+            color: #fff;
+            border: 2px solid #000;
+            padding: 8px 16px;
+            cursor: pointer;
+            font-weight: 700;
+            margin-top: 10px;
+        }
+        button:hover {
+            background: #fff;
+            color: #000;
+        }
+        pre {
+            background: #f5f5f5;
+            padding: 10px;
+            overflow-x: auto;
+            border: 1px solid #ddd;
+            font-size: 11px;
+        }
+    </style>
+</head>
+<body>
+    <div class="api-container">
+        <h1>Sticky API Endpoints</h1>
+        <p>Use these endpoints in your Processing sketch to get real-time data.</p>
+        
+        <div class="endpoint">
+            <h3>1. Get All Statistics (Recommended)</h3>
+            <p>Returns comprehensive data including check-ins, rankings, and game stats.</p>
+            <code>GET /api.html?format=json</code>
+            <button onclick="fetchData()">Test Endpoint</button>
+            <pre id="result1"></pre>
+        </div>
+
+        <div class="endpoint">
+            <h3>2. Processing Direct Access</h3>
+            <p>For Processing: <code>loadJSON("http://your-server/api.html?format=json")</code></p>
+            <p style="color: #666; font-size: 12px;">
+                Note: You may need to enable CORS or use a local server proxy.
+            </p>
+        </div>
+    </div>
+
+    <script type="module">
+        import supabase from './js/supabaseClient.js';
+
+        window.fetchData = async function() {
+            const result1 = document.getElementById('result1');
+            result1.textContent = 'Loading...';
+            
+            try {
+                const data = await getAllStats();
+                result1.textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                result1.textContent = 'Error: ' + error.message;
+            }
+        };
+
+        function getGameStats() {
+            // Get game statistics from localStorage
+            const globalKey = 'game_stats_global';
+            const globalStats = JSON.parse(localStorage.getItem(globalKey) || '{}');
+            
+            // Return with default values for all game types
+            return {
+                math: globalStats.math || 0,
+                slider: globalStats.slider || 0,
+                puzzle: globalStats.puzzle || 0,
+                connect: globalStats.connect || 0,
+                dodge: globalStats.dodge || 0,
+                reaction: globalStats.reaction || 0,
+                target: globalStats.target || 0
+            };
+        }
+
+        async function getAllStats() {
+            // 1. Get all check-ins
+            const { data: checkIns } = await supabase
+                .from('check_ins')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            // 2. Get all profiles with rankings
+            const { data: profiles } = await supabase
+                .from('profiles')
+                .select('*')
+                .order('total_check_ins', { ascending: false });
+
+            // 3. Get group statistics
+            const { data: groups } = await supabase
+                .from('groups')
+                .select('*')
+                .order('total_group_check_ins', { ascending: false });
+
+            // 4. Calculate statistics
+            const totalCheckIns = checkIns?.length || 0;
+            const totalUsers = profiles?.length || 0;
+            const totalGroups = groups?.length || 0;
+            
+            // 5. Calculate daily activity (last 30 days)
+            const thirtyDaysAgo = new Date();
+            thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+            const recentCheckIns = checkIns?.filter(ci => 
+                new Date(ci.created_at) >= thirtyDaysAgo
+            ) || [];
+            
+            // 6. Group by date
+            const dailyActivity = {};
+            recentCheckIns.forEach(ci => {
+                const date = ci.check_in_date || ci.created_at.split('T')[0];
+                dailyActivity[date] = (dailyActivity[date] || 0) + 1;
+            });
+
+            // 7. Mood distribution
+            const moodCounts = {};
+            checkIns?.forEach(ci => {
+                const mood = ci.mood || '⚙️';
+                moodCounts[mood] = (moodCounts[mood] || 0) + 1;
+            });
+
+            // 8. Top users (limit to top 10)
+            const topUsers = profiles?.slice(0, 10).map(p => ({
+                username: p.username,
+                check_ins: p.total_check_ins,
+                mood: p.mood
+            })) || [];
+
+            // 9. Get game statistics
+            const gameStats = getGameStats();
+
+            return {
+                timestamp: new Date().toISOString(),
+                summary: {
+                    total_check_ins: totalCheckIns,
+                    total_users: totalUsers,
+                    total_groups: totalGroups,
+                    active_days: Object.keys(dailyActivity).length
+                },
+                rankings: {
+                    top_users: topUsers,
+                    top_groups: groups?.slice(0, 10).map(g => ({
+                        name: g.name,
+                        check_ins: g.total_group_check_ins
+                    })) || []
+                },
+                activity: {
+                    daily: dailyActivity,
+                    recent_count: recentCheckIns.length
+                },
+                moods: moodCounts,
+                games: gameStats,
+                // Raw data (limited for performance)
+                recent_check_ins: checkIns?.slice(0, 50).map(ci => ({
+                    date: ci.check_in_date,
+                    mood: ci.mood,
+                    created_at: ci.created_at
+                })) || []
+            };
+        }
+
+        // Handle API request
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('format') === 'json') {
+            getAllStats().then(data => {
+                document.body.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+            }).catch(err => {
+                document.body.innerHTML = `<pre>{"error": "${err.message}"}</pre>`;
+            });
+        }
+    </script>
+</body>
+</html>
+

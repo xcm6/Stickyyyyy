@@ -3,6 +3,7 @@ import { ensureProfile, getStreak, performCheckIn } from './data.js';
 import GameManager from './games/GameManager.js';
 import { showToast } from './utils.js';
 import supabase from './supabaseClient.js';
+import { uploadCheckin, listenOrganismState } from './firebase.js';
 
 async function init() {
     const user = await getCurrentUser();
@@ -326,4 +327,40 @@ async function checkAndResetDailyMood(userId) {
     }
 }
 
+// Firebase integration - test wiring
+function setupFirebaseIntegration() {
+    // Test upload button
+    const uploadBtn = document.getElementById('uploadBtn');
+    if (uploadBtn) {
+        uploadBtn.addEventListener('click', async () => {
+            const randomScore = Math.floor(Math.random() * 101);
+            try {
+                const key = await uploadCheckin({
+                    userId: "anon",
+                    gameId: "test",
+                    score: randomScore,
+                    payload: {}
+                });
+                console.log('Check-in uploaded:', key);
+            } catch (error) {
+                console.error('Upload error:', error);
+            }
+        });
+    }
+    
+    // Listen to organismState changes
+    const debugStateEl = document.getElementById('debugState');
+    if (debugStateEl) {
+        const unsubscribe = listenOrganismState((data) => {
+            debugStateEl.textContent = JSON.stringify(data, null, 2);
+        });
+        
+        // Cleanup on page unload (optional)
+        window.addEventListener('beforeunload', () => {
+            unsubscribe();
+        });
+    }
+}
+
 init();
+setupFirebaseIntegration();

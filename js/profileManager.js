@@ -25,7 +25,7 @@ async function initProfile() {
     document.getElementById('userId').innerText = profileId.substring(0, 8) + '...';
     document.getElementById('userIdDisplay').onclick = () => {
         navigator.clipboard.writeText(profileId).then(() => {
-            showToast('已复制 ID', 'success');
+            showToast('ID copied', 'success');
         });
     };
 
